@@ -9,7 +9,7 @@ import webapp2
 MAIN_PAGE_FOOTER_TEMPLATE = """\
 <html>
   <body>
-    <form action="/bookdate" method="post">
+    <form action="/bookdate?%s" method="post">
       <div><textarea name="content" rows="3" cols="60"></textarea></div>
       <div><input type="submit" value="Reserve Date"></div>
     </form>
