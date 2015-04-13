@@ -33,7 +33,7 @@ class Helper(ndb.Model):
   email = ndb.StringProperty(indexed=False)
   
 class Booking(ndb.Model):
-  author = ndb.StructuredProperty(Author)
+  author = ndb.StructuredProperty(Helper)
   content = ndb.StringProperty(indexed=False)
   date = ndb.DateTimeProperty(auto_now_add=True)
   booked_date = ndb.DateTimeProperty(indexed=False)
@@ -78,7 +78,7 @@ class BookDate(webapp2.RequestHandler):
     booking = Greeting(parent=helper_key(helper_name))
 
     if users.get_current_user():
-      booking.author = Author(
+      booking.author = Helper(
         identity=users.get_current_user().user_id(),
         email=users.get_current_user().email())
 
