@@ -75,7 +75,7 @@ class BookDate(webapp2.RequestHandler):
   def post(self):
     helper_name = self.request.get('helper_name',
                                     DEFAULT_HELPER_NAME)
-    booking = Greeting(parent=helper_key(helper_name))
+    booking = Booking(parent=helper_key(helper_name))
 
     if users.get_current_user():
       booking.author = Helper(
