@@ -6,7 +6,7 @@ from google.appengine.ext import ndb
 
 import webapp2
 
-MAIN_PAGE_HTML = """\
+MAIN_PAGE_FOOTER_TEMPLATE = """\
 <html>
   <body>
     <form action="/bookdate" method="post">
