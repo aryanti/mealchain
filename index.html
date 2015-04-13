@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <body>
+    {% for booking in bookings %}
+      {% if booking.author %}
+        <b>{{ booking.author.email }}
+          {% if user and user.user_id() == booking.author.identity %}
+            (You)
+          {% endif %}
+        </b> wrote:
+      {% else %}
+       An anonymous person wrote:
+      {% endif %}
+      <blockquote>{{ booking.content }}</blockquote>
+    {% endfor %}
+
+    <form action="/sign?helper_name={{ helper_name }}" method="post">
+      <div><textarea name="content" rows="3" cols="60"></textarea></div>
+      <div><input type="submit" value="Book Date"></div>
+    </form>
+
+    <hr>
+
+    <form>Contributor's name:
+      <input value="{{ helper_name }}" name="helper_name">
+      <input type="submit" value="switch">
+    </form>
+
+    <a href="{{ url|safe }}">{{ url_linktext }}</a>
+
+  </body>
+</html>
+{% endautoescape %}
