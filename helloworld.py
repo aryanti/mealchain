@@ -1,29 +1,18 @@
-import cgi
+import os
 import urllib
 
 from google.appengine.api import users
 from google.appengine.ext import ndb
 
+import jinja2
 import webapp2
 
-MAIN_PAGE_FOOTER_TEMPLATE = """\
-<html>
-  <body>
-    <form action="/bookdate?%s" method="post">
-      <div><textarea name="content" rows="3" cols="60"></textarea></div>
-      <div><input type="submit" value="Reserve Date"></div>
-    </form>
-    <hr>
-    <form>Contributor's name:
-      <input value="%s" name="helper_name">
-      <input type="submit" value="switch">
-    </form>
-    <a href="%s">%s</a>
-  </body>
-</html>
-"""
+JINJA_ENVIRONMENT = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
+    extensions=['jinja2.ext.autoescape'],
+    autoescape=True)
 
-DEFAULT_HELPER_NAME = 'anonymous contributor'
+DEFAULT_HELPER_NAME = 'anon'
 
 def booking_key(helper_name=DEFAULT_HELPER_NAME):
   return ndb.Key('Meal', helper_name)
@@ -40,7 +29,6 @@ class Booking(ndb.Model):
 
 class MainPage(webapp2.RequestHandler):
   def get(self):
-    self.response.write('<html><body>')
     helper_name = self.request.get('helper_name',
                                    DEFAULT_HELPER_NAME)
     
@@ -49,27 +37,23 @@ class MainPage(webapp2.RequestHandler):
     bookings = bookings_query.fetch(10)
     
     user = users.get_current_user()
-    for booking in bookings:
-      if booking.author:
-        author = booking.author.email
-        self.response.write('<b>%s</b> wrote:' % author)
-      else:
-        self.response.write('An anonymous person wrote:')
-      self.response.write('<blockquote>%s</blockquote>' %
-                          cgi.escape(booking.content))
-
     if user:
       url = users.create_logout_url(self.request.uri)
       url_linktext = 'Logout'
     else:
       url = users.create_login_url(self.request.uri)
       url_linktext = 'Login'
+      
+    template_values = {
+      'user': user,
+      'bookings': bookings,
+      'helper_name': urllib.quote_plus(helper_name),
+      'url': url,
+      'url_linktext': url_linktext,
+    }
     
-    sign_query_params = urllib.urlencode({'helper_name':
-                                          helper_name})
-    self.response.write(MAIN_PAGE_FOOTER_TEMPLATE %
-                        (sign_query_params, cgi.escape(helper_name),
-                         url, url_linktext))
+    template = JINJA_ENVIRONMENT.get_template('index.html')
+    self.response.write(template.render(template_values))
         
 class BookDate(webapp2.RequestHandler):
   def post(self):
